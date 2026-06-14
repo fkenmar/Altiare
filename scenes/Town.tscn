@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/Town.gd" id="1_town"]
 [ext_resource type="Script" path="res://scripts/HouseEntrance.gd" id="2_house"]
+[ext_resource type="Script" path="res://scripts/Bed.gd" id="3_bed"]
 
 [sub_resource type="RectangleShape2D" id="HWall"]
 size = Vector2(640, 32)
@@ -11,6 +12,9 @@ size = Vector2(32, 480)
 
 [sub_resource type="RectangleShape2D" id="Door"]
 size = Vector2(40, 40)
+
+[sub_resource type="RectangleShape2D" id="BedShape"]
+size = Vector2(40, 28)
 
 [node name="Town" type="Node2D"]
 script = ExtResource("1_town")
@@ -47,3 +51,16 @@ polygon = PackedVector2Array(-20, -20, 20, -20, 20, 20, -20, 20)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HouseEntrance"]
 shape = SubResource("Door")
+
+[node name="Bed" type="Area2D" parent="."]
+position = Vector2(464, 336)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("3_bed")
+
+[node name="Visual" type="Polygon2D" parent="Bed"]
+color = Color(0.85, 0.3, 0.4, 1)
+polygon = PackedVector2Array(-20, -14, 20, -14, 20, 14, -20, 14)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bed"]
+shape = SubResource("BedShape")
