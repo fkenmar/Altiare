@@ -2,8 +2,9 @@
 
 Stardew Valley inspired isekai RPG game that's work in-progress
 
-Built in **Godot 4.6** (GDScript), with all visuals generated
-procedurally in code (no external art assets).
+Built in **Godot 4.6** (GDScript)
+
+Every character or monster is procedurally generated but follow the same structure
 
 ## Layout
 
