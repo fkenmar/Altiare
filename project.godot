@@ -19,6 +19,13 @@ run/main_scene="res://scenes/Intro.tscn"
 
 GameState="*res://scripts/GameState.gd"
 
+[display]
+
+window/size/viewport_width=960
+window/size/viewport_height=540
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
@@ -26,3 +33,4 @@ GameState="*res://scripts/GameState.gd"
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+textures/canvas_textures/default_texture_filter=0

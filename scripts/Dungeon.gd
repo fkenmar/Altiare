@@ -10,16 +10,14 @@ const TILE_SIZE: int = 32
 const WIDTH: int = 16
 const HEIGHT: int = 12
 
-const FLOOR_COLOR := Color(0.16, 0.16, 0.2)  # cold stone
-const WALL_COLOR := Color(0.08, 0.08, 0.1)   # near-black
-const SCALING_PER_LEVEL: float = 0.3         # monsters get +30% per player level beyond 1
+const SCALING_PER_LEVEL: float = 0.3  # monsters get +30% per player level beyond 1
 
 var _returning: bool = false
 
 @onready var _ground: TileMapLayer = $Ground
 
 func _ready() -> void:
-	TileFloorBuilder.build(_ground, WIDTH, HEIGHT, TILE_SIZE, FLOOR_COLOR, WALL_COLOR)
+	TileFloorBuilder.build(_ground, WIDTH, HEIGHT, TILE_SIZE, "dungeon")
 	GameState.player_fainted.connect(_on_player_fainted)
 	_scale_monsters()
 

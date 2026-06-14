@@ -1,38 +1,46 @@
 extends RefCounted
 
-## Preloaded by consumers (e.g. `const TileFloorBuilder = preload(...)`) rather than
-## referenced by class_name, so headless runs don't depend on the editor's global
-## class cache (which lives in the gitignored .godot/).
+## Builds a themed tile floor onto a TileMapLayer from PixelArt-generated tiles: an
+## atlas of floor variants + an accent tile (flowers for town / rubble for dungeon) +
+## a wall-border tile, painted with stable per-cell variation. Shared by town & dungeon.
+## Preloaded by consumers (not class_name) so headless runs need no global class cache.
 
-## Builds a placeholder tile floor (floor fill + 1-tile wall border) onto a
-## TileMapLayer from a code-generated 2-tile atlas, so we ship no art. Shared by the
-## town and the dungeon — one home for the fiddly programmatic-TileSet generation.
+const PixelArt = preload("res://scripts/PixelArt.gd")
 
-const FLOOR_TILE := Vector2i(0, 0)
-const WALL_TILE := Vector2i(1, 0)
-const SOURCE_ID: int = 0
+const FLOOR_VARIANTS: int = 3  # atlas indices 0..2 are plain floor
+const ACCENT: int = 3          # flowers (town) / rubble (dungeon)
+const WALL: int = 4
+const ACCENT_CHANCE: float = 0.07
 
-## Generate the tileset, assign it, and paint a width x height grid with a wall border.
-static func build(ground: TileMapLayer, width: int, height: int, tile_size: int,
-		floor_color: Color, wall_color: Color) -> void:
-	ground.tile_set = _make_tileset(tile_size, floor_color, wall_color)
+## theme: "town" or "dungeon". Generates the tileset, assigns it, and paints a
+## width x height grid with a 1-tile wall border and varied interior floor.
+static func build(ground: TileMapLayer, width: int, height: int, tile_size: int, theme: String) -> void:
+	var tiles := PixelArt.ground_tiles(theme)  # [floor0, floor1, floor2, accent, wall]
+	ground.tile_set = _atlas_tileset(tiles, tile_size)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 9001 if theme == "town" else 9002
 	for y in height:
 		for x in width:
-			var on_edge := x == 0 or y == 0 or x == width - 1 or y == height - 1
-			ground.set_cell(Vector2i(x, y), SOURCE_ID, WALL_TILE if on_edge else FLOOR_TILE)
+			var idx: int
+			if x == 0 or y == 0 or x == width - 1 or y == height - 1:
+				idx = WALL
+			elif rng.randf() < ACCENT_CHANCE:
+				idx = ACCENT
+			else:
+				idx = rng.randi_range(0, FLOOR_VARIANTS - 1)
+			ground.set_cell(Vector2i(x, y), 0, Vector2i(idx, 0))
 
-static func _make_tileset(tile_size: int, floor_color: Color, wall_color: Color) -> TileSet:
-	var image := Image.create_empty(tile_size * 2, tile_size, false, Image.FORMAT_RGBA8)
-	image.fill_rect(Rect2i(0, 0, tile_size, tile_size), floor_color)
-	image.fill_rect(Rect2i(tile_size, 0, tile_size, tile_size), wall_color)
-
+static func _atlas_tileset(tiles: Array, tile_size: int) -> TileSet:
+	var count := tiles.size()
+	var atlas := PixelArt.new_image(tile_size * count, tile_size)
+	for i in count:
+		atlas.blit_rect(tiles[i], Rect2i(0, 0, tile_size, tile_size), Vector2i(i * tile_size, 0))
 	var source := TileSetAtlasSource.new()
-	source.texture = ImageTexture.create_from_image(image)
+	source.texture = PixelArt.tex(atlas)
 	source.texture_region_size = Vector2i(tile_size, tile_size)
-	source.create_tile(FLOOR_TILE)
-	source.create_tile(WALL_TILE)
-
-	var tile_set := TileSet.new()
-	tile_set.tile_size = Vector2i(tile_size, tile_size)
-	tile_set.add_source(source, SOURCE_ID)
-	return tile_set
+	for i in count:
+		source.create_tile(Vector2i(i, 0))
+	var ts := TileSet.new()
+	ts.tile_size = Vector2i(tile_size, tile_size)
+	ts.add_source(source, 0)
+	return ts
