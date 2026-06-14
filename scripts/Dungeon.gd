@@ -20,6 +20,16 @@ func _ready() -> void:
 	TileFloorBuilder.build(_ground, WIDTH, HEIGHT, TILE_SIZE, "dungeon")
 	GameState.player_fainted.connect(_on_player_fainted)
 	_scale_monsters()
+	_clamp_camera()
+
+## Clamp the player's camera to the dungeon bounds so the zoom never shows the void.
+func _clamp_camera() -> void:
+	var cam := get_node_or_null("Player/Camera2D") as Camera2D
+	if cam:
+		cam.limit_left = 0
+		cam.limit_top = 0
+		cam.limit_right = WIDTH * TILE_SIZE
+		cam.limit_bottom = HEIGHT * TILE_SIZE
 
 ## Each dive (the scene is freshly reloaded, so monsters respawn) scales to the player's
 ## level, keeping the dungeon a meaningful reason to descend on day 10 as on day 1.

@@ -52,6 +52,80 @@ These are settled. Don't relitigate them unless I explicitly ask.
 
 ---
 
+## Commands
+
+The Godot project root is `new-game-project/` (this folder), not the repo root.
+Godot 4.6 lives at `/opt/homebrew/bin/godot`. Run everything via `--path` so the
+working directory doesn't matter:
+
+```bash
+# Play the game (opens a window; starts at the Intro main scene)
+godot --path new-game-project
+
+# Open the editor
+godot -e --path new-game-project
+
+# "Test" = boot a scene headless and confirm zero errors, then auto-quit.
+# This is the project's verification method — there is no unit-test framework.
+godot --headless --path new-game-project --quit-after 120 res://scenes/World.tscn
+
+# Boot any single scene the same way (the closest thing to "run one test"):
+godot --headless --path new-game-project --quit-after 120 res://scenes/Dungeon.tscn
+godot --headless --path new-game-project --quit-after 120 res://scenes/Intro.tscn
+```
+
+`--quit-after N` runs N frames then exits, so headless boots self-terminate. A clean
+run prints only the engine banner — any GDScript parse/runtime error shows up here.
+There is no separate build step (GDScript is interpreted); "building" only matters
+when exporting, which this for-fun project doesn't do.
+
+---
+
+## Architecture (how the code fits together)
+
+**Scene flow.** `Intro.tscn` (the main scene) → `World.tscn` → `Dungeon.tscn` →
+back to `World.tscn`. `World.tscn` is a composition: it instances `Town.tscn` +
+`HUD.tscn` together. Returning from the dungeon (on faint or via the exit) loads
+`World.tscn` directly, so the isekai intro plays only once. Transitions are plain
+`get_tree().change_scene_to_file(...)`; all persistent state survives because it
+lives on the `GameState` autoload, not in any scene.
+
+**`GameState.gd` is the hub.** The only autoload. Holds the day/energy loop, RPG
+stats, and progression, and exposes mutation methods (`sleep`, `take_damage`,
+`gain_xp`, `allocate_point`, `plant_crop`, `claim_bounty`, …). Derived stats
+(`max_hp()`, `attack_power()`) are computed from reallocatable primaries — that's
+what lets the Status Window "cheat ability" retune the build. Tuning constants
+(energy, XP curve, rewards, stat coefficients) are consts at the top of the file.
+
+**Everything communicates through GameState signals**, not direct node references:
+`stats_changed` (HUD redraws), `player_fainted` (dungeon sends you home),
+`prompt_changed` / `message_shown` (HUD shows contextual prompts and transient
+lines). New systems should emit/listen on these rather than reach across the tree.
+
+**Interactables share a base class.** `Interactable.gd` (extends `Area2D`) handles
+"stand on it, press the interact key" — it tracks player overlap, routes a prompt
+to the HUD, and calls `_interact()` on `ui_accept`. `Bed`, `NPC`, `QuestBoard`,
+`GardenPlot`, etc. extend it and override `_interact()` (and optionally `get_prompt()`
+for stateful prompts). The player is in the `"player"` group; monsters are in the
+`"monster"` group (so the HUD's inspect can find them).
+
+**Rendering is fully procedural — no art assets.** `PixelArt.gd` generates every
+sprite/tile as an `ImageTexture` in code (seeded, so visuals never shimmer between
+runs). `TileFloorBuilder.gd` assembles themed (`"town"`/`"dungeon"`) tile floors
+from those. To prettify later, swap these for itch.io tilesets; nothing else needs
+to change.
+
+**Conventions that keep headless runs working** (don't break these):
+- Scripts reference each other via `preload(...)`, **not** `class_name` — headless
+  boots then don't depend on the editor's global class cache.
+- Uses `TileMapLayer` (the legacy `TileMap` node is deprecated in 4.6).
+- Movement is **polled** in `_physics_process` (no custom InputMap actions);
+  interaction uses the built-in `ui_accept` action.
+- The HUD is **instanced per gameplay scene** (in `World` and `Dungeon`),
+  deliberately *not* an autoload.
+
+---
+
 ## Working agreements (how to build with me)
 
 1. **One milestone at a time.** Do not build ahead. Finish and confirm the current
@@ -141,12 +215,13 @@ was found and fixed).
 **Controls:** WASD/arrows move · `Space`/`Enter` interact (sleep / talk / garden / board /
 descend) · `C` status window · `F` inspect.
 
-**Architecture notes:** `GameState.gd` is the sole autoload (the hub everything hangs
-off). The HUD is instanced per scene (deliberately not an autoload). Scripts reference
-each other via `preload`, not `class_name`, so headless runs don't depend on the editor's
-global class cache. Uses `TileMapLayer` (the legacy `TileMap` node is deprecated in 4.6).
-Movement is polled (no custom InputMap); interaction uses the built-in `ui_accept` action.
-Placeholder colored-square visuals throughout — drop in itch.io tilesets to prettify.
+**Architecture notes:** see the **Architecture** section above for how the code fits
+together (scene flow, the `GameState` hub + signals, the `Interactable` base class, the
+procedural-art pipeline, and the headless-safe conventions). Visuals are now procedurally
+generated by `PixelArt.gd` (a step up from flat placeholder squares) — drop in itch.io
+tilesets to prettify further. Rendering is pixel-crisp (nearest filter, 2× camera,
+y-sorted with per-map camera limits) and the window is **freely resizable**
+(`canvas_items` + `expand` stretch, 960×540 base).
 
 **Next:** playtest day 1 → 10 and tune to taste. The knobs are consts at the top of
 `GameState.gd` (energy, XP curve, rewards, derived-stat coefficients) and `Dungeon.gd`

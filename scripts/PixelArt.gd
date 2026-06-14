@@ -14,9 +14,6 @@ const GRASS := Color8(112, 170, 84)
 const GRASS_DK := Color8(86, 142, 64)
 const GRASS_LT := Color8(146, 200, 104)
 
-const PATH := Color8(176, 140, 96)
-const PATH_DK := Color8(146, 112, 74)
-
 const HEDGE := Color8(74, 128, 64)
 const HEDGE_DK := Color8(50, 96, 48)
 const HEDGE_LT := Color8(104, 162, 84)
