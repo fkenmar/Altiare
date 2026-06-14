@@ -356,9 +356,20 @@ static func tilled(stage: int) -> ImageTexture:
 	var w := 40
 	var h := 40
 	var img := new_image(w, h)
-	rect(img, 2, 2, w - 4, h - 4, SOIL)
-	for x in range(6, w - 4, 8):
-		rect(img, x, 4, 2, h - 8, SOIL_DK)
+	rect(img, 2, 2, w - 4, h - 4, SOIL_DK)  # dark earth base
+	var rng := _rng(4242)
+	for i in 70:                            # clumpy dirt mottling
+		var cx := rng.randi_range(3, w - 5)
+		var cy := rng.randi_range(3, h - 5)
+		var c := SOIL if rng.randf() < 0.6 else SOIL.lightened(0.12)
+		px(img, cx, cy, c)
+		if rng.randf() < 0.5:
+			px(img, cx + 1, cy, c)
+	for ry in range(9, h - 6, 9):           # broken furrow dashes (tilled rows, not planks)
+		var fx := 5
+		while fx < w - 8:
+			rect(img, fx, ry, 3, 1, SOIL.lightened(0.10))
+			fx += rng.randi_range(6, 10)
 	if stage == 1:
 		for sx in [12, 20, 28]:
 			px(img, sx, 26, STEM)
