@@ -170,6 +170,25 @@ thing at a time.
 
 ---
 
+## Design workflow (make it appealing)
+
+Visuals are iterated by *looking at rendered frames*, not by guessing.
+
+- **Screenshot scenes:** `bash .claude/hooks/screenshot.sh [World Dungeon Intro]`
+  renders real PNGs to `.godot/shots/<Scene>.png` (gitignored) and prints their paths
+  to open/Read. It uses the real renderer, so a window flashes briefly (`--headless`
+  produces blank images). The rig is `tools/capture_rig.tscn` (+ `.gd`).
+- **`/design [Scene] [focus]`** runs the loop via the **art-director** subagent
+  (`.claude/agents/art-director.md`): render → *look* → critique against cozy-RPG
+  principles → implement the single highest-leverage change (procedural — in
+  `PixelArt.gd` / `TileFloorBuilder.gd` / a scene tint) → re-render → keep only if
+  clearly better → `/qa`. One proven change at a time; readability and the existing
+  identity are non-negotiable.
+
+All art stays procedural (`PixelArt.gd`, seeded) — no external image files.
+
+---
+
 ## Working agreements (how to build with me)
 
 1. **One milestone at a time.** Do not build ahead. Finish and confirm the current
