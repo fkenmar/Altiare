@@ -71,6 +71,7 @@ func _exchange_blows() -> void:
 func _die() -> void:
 	GameState.gain_xp(xp_reward)
 	GameState.add_gold(gold_reward)
+	GameState.record_kill()  # counts toward the tavern bounty
 	print("%s defeated! +%d XP, +%d gold. (Lvl %d, %d/%d XP)" % [
 		monster_name, xp_reward, gold_reward, GameState.level, GameState.xp, GameState.xp_to_next()])
 	queue_free()

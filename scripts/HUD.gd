@@ -14,10 +14,15 @@ var _inspect: Label
 var _status_panel: Panel
 var _status_text: Label
 var _status_open := false
+var _prompt: Label
+var _message: Label
+var _msg_tween: Tween
 
 func _ready() -> void:
 	_build_ui()
 	GameState.stats_changed.connect(_refresh)
+	GameState.prompt_changed.connect(_on_prompt)
+	GameState.message_shown.connect(_on_message)
 	_refresh()
 
 func _build_ui() -> void:
@@ -38,6 +43,33 @@ func _build_ui() -> void:
 	hint.add_theme_font_size_override("font_size", 12)
 	hint.modulate = Color(1, 1, 1, 0.6)
 	add_child(hint)
+
+	# Transient message (dialogue, harvest/bounty results), top-centre, fades out.
+	_message = Label.new()
+	_message.anchor_left = 0.5
+	_message.anchor_right = 0.5
+	_message.offset_left = -320
+	_message.offset_right = 320
+	_message.offset_top = 96
+	_message.offset_bottom = 124
+	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_message.add_theme_font_size_override("font_size", 16)
+	_message.modulate = Color(1, 1, 1, 0)
+	add_child(_message)
+
+	# Contextual interact prompt, bottom-centre.
+	_prompt = Label.new()
+	_prompt.anchor_left = 0.5
+	_prompt.anchor_right = 0.5
+	_prompt.anchor_top = 1.0
+	_prompt.anchor_bottom = 1.0
+	_prompt.offset_left = -320
+	_prompt.offset_right = 320
+	_prompt.offset_top = -56
+	_prompt.offset_bottom = -28
+	_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_prompt.add_theme_font_size_override("font_size", 16)
+	add_child(_prompt)
 
 	# --- Status Window: centered, hidden until toggled ---
 	_status_panel = Panel.new()
@@ -121,3 +153,16 @@ func _refresh() -> void:
 			GameState.strength, GameState.attack_power(),
 			GameState.vitality, GameState.max_hp(),
 			GameState.xp, GameState.xp_to_next(), GameState.gold]
+
+func _on_prompt(text: String) -> void:
+	_prompt.text = ("[Space] " + text) if text != "" else ""
+
+## Show a transient line (dialogue / harvest / bounty result), then fade it out.
+func _on_message(text: String) -> void:
+	_message.text = text
+	_message.modulate = Color(1, 1, 1, 1)
+	if _msg_tween != null and _msg_tween.is_valid():
+		_msg_tween.kill()
+	_msg_tween = create_tween()
+	_msg_tween.tween_interval(2.5)
+	_msg_tween.tween_property(_message, "modulate:a", 0.0, 1.0)
