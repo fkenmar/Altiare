@@ -16,7 +16,11 @@ size = Vector2(32, 384)
 size = Vector2(40, 40)
 
 [node name="Dungeon" type="Node2D"]
+y_sort_enabled = true
 script = ExtResource("1_dungeon")
+
+[node name="Tint" type="CanvasModulate" parent="."]
+color = Color(0.78, 0.82, 1, 1)
 
 [node name="Ground" type="TileMapLayer" parent="."]
 
