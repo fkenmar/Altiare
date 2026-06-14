@@ -12,12 +12,11 @@ const HEIGHT: int = 12
 
 const FLOOR_COLOR := Color(0.16, 0.16, 0.2)  # cold stone
 const WALL_COLOR := Color(0.08, 0.08, 0.1)   # near-black
+const SCALING_PER_LEVEL: float = 0.3         # monsters get +30% per player level beyond 1
 
 var _returning: bool = false
 
 @onready var _ground: TileMapLayer = $Ground
-
-const SCALING_PER_LEVEL: float = 0.3  # monsters get +30% per player level beyond 1
 
 func _ready() -> void:
 	TileFloorBuilder.build(_ground, WIDTH, HEIGHT, TILE_SIZE, FLOOR_COLOR, WALL_COLOR)
@@ -32,9 +31,11 @@ func _scale_monsters() -> void:
 		m.apply_scaling(factor)
 
 func _on_player_fainted() -> void:
+	# Re-assert a survivable floor on EVERY faint, BEFORE the guard, so a second
+	# same-frame killing blow can't undo it (you arrive home barely conscious, not dead).
+	GameState.hp = max(GameState.hp, 1)
 	if _returning:
 		return  # one faint, one trip home (multiple monsters can zero us in a frame)
 	_returning = true
-	GameState.hp = 1  # dragged home barely conscious; sleep to recover
 	print("You fainted! Dragged back to town.")
 	get_tree().change_scene_to_file("res://scenes/World.tscn")
