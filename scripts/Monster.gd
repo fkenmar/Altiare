@@ -76,6 +76,15 @@ func _die() -> void:
 		monster_name, xp_reward, gold_reward, GameState.level, GameState.xp, GameState.xp_to_next()])
 	queue_free()
 
+## Scale this monster's stats and rewards by a factor (the dungeon does this on entry
+## so a dive stays challenging and worthwhile as the player levels). Call before combat.
+func apply_scaling(factor: float) -> void:
+	max_hp = int(round(max_hp * factor))
+	attack = int(round(attack * factor))
+	xp_reward = int(round(xp_reward * factor))
+	gold_reward = int(round(gold_reward * factor))
+	hp = max_hp
+
 func _spawn_number(at: Vector2, value_text: String, color: Color) -> void:
 	var parent := get_parent()
 	if parent == null:

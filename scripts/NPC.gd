@@ -5,9 +5,11 @@ extends "res://scripts/Interactable.gd"
 
 @export var npc_name: String = "Villager"
 @export var lines: PackedStringArray = PackedStringArray([
-	"Oh! A new face. Welcome to the frontier, traveler.",
-	"That cave at the edge of town? Monsters. Strong folk descend to grow stronger.",
-	"Me, I just tend my garden. There's a free plot if you fancy trying.",
+	"Welcome, summoned one. I'm Mira. Don't worry - the dizziness fades.",
+	"That cave to the north is the dungeon. Walk into a monster to fight; every swing spends energy.",
+	"Press [C] for your Status Window - inspect foes with [F], and pour level-up points into Strength or Vitality.",
+	"When energy runs low, come home and sleep. A new day restores you... and ripens whatever you've planted.",
+	"Tend the garden, claim bounties at the board. Build the life you want here. We're glad you came.",
 ])
 
 var _line: int = 0
