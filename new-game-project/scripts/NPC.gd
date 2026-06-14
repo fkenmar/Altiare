@@ -1,0 +1,33 @@
+extends "res://scripts/Interactable.gd"
+
+## A villager you can talk to. Cycles through its dialogue lines on each interact —
+## the cheap way to make the town feel inhabited.
+
+const PixelArt = preload("res://scripts/PixelArt.gd")
+
+@export var npc_name: String = "Villager"
+@export var lines: PackedStringArray = PackedStringArray([
+	"Welcome, summoned one. I'm Mira. Don't worry - the dizziness fades.",
+	"That cave to the north is the dungeon. Walk into a monster to fight; every swing spends energy.",
+	"Press [C] for your Status Window - inspect foes with [F], and pour level-up points into Strength or Vitality.",
+	"When energy runs low, come home and sleep. A new day restores you... and ripens whatever you've planted.",
+	"Tend the garden, claim bounties at the board. Build the life you want here. We're glad you came.",
+])
+
+var _line: int = 0
+
+@onready var _visual: Sprite2D = $Visual
+@onready var _shadow: Sprite2D = $Shadow
+
+func _on_ready() -> void:
+	prompt = "talk to %s" % npc_name
+	_visual.texture = PixelArt.character(Color8(238, 196, 158), Color8(120, 82, 50), Color8(206, 120, 150), Color8(150, 92, 120))
+	_visual.position = Vector2(0, -2)
+	_shadow.texture = PixelArt.shadow(16, 7)
+	_shadow.position = Vector2(0, 12)
+
+func _interact() -> void:
+	if lines.is_empty():
+		return
+	GameState.message_shown.emit("%s: %s" % [npc_name, lines[_line]])
+	_line = (_line + 1) % lines.size()

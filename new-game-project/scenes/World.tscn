@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/Town.tscn" id="1_town"]
+[ext_resource type="PackedScene" path="res://scenes/HUD.tscn" id="3_hud"]
+
+[node name="World" type="Node2D"]
+
+[node name="Town" parent="." instance=ExtResource("1_town")]
+
+[node name="HUD" parent="." instance=ExtResource("3_hud")]

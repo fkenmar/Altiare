@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(godot *)",
+      "Bash(ls *)",
+      "Read",
+      "Glob",
+      "Grep"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/qa-gate.sh\"",
+            "timeout": 120,
+            "statusMessage": "Quality gate: tests + scene boots…"
+          }
+        ]
+      }
+    ]
+  }
+}

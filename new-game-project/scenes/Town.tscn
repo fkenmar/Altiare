@@ -1,0 +1,124 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/Town.gd" id="1_town"]
+[ext_resource type="Script" path="res://scripts/HouseEntrance.gd" id="2_house"]
+[ext_resource type="Script" path="res://scripts/Bed.gd" id="3_bed"]
+[ext_resource type="Script" path="res://scripts/DungeonDoor.gd" id="4_dungeon"]
+[ext_resource type="Script" path="res://scripts/NPC.gd" id="5_npc"]
+[ext_resource type="Script" path="res://scripts/QuestBoard.gd" id="6_board"]
+[ext_resource type="Script" path="res://scripts/GardenPlot.gd" id="7_garden"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="8_player"]
+
+[sub_resource type="RectangleShape2D" id="HWall"]
+size = Vector2(640, 32)
+
+[sub_resource type="RectangleShape2D" id="VWall"]
+size = Vector2(32, 480)
+
+[sub_resource type="RectangleShape2D" id="Door"]
+size = Vector2(40, 40)
+
+[sub_resource type="RectangleShape2D" id="BedShape"]
+size = Vector2(40, 28)
+
+[sub_resource type="RectangleShape2D" id="NPCShape"]
+size = Vector2(28, 28)
+
+[node name="Town" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_town")
+
+[node name="Tint" type="CanvasModulate" parent="."]
+color = Color(1, 0.96, 0.86, 1)
+
+[node name="Ground" type="TileMapLayer" parent="."]
+
+[node name="Walls" type="StaticBody2D" parent="."]
+
+[node name="WallTop" type="CollisionShape2D" parent="Walls"]
+position = Vector2(320, 16)
+shape = SubResource("HWall")
+
+[node name="WallBottom" type="CollisionShape2D" parent="Walls"]
+position = Vector2(320, 464)
+shape = SubResource("HWall")
+
+[node name="WallLeft" type="CollisionShape2D" parent="Walls"]
+position = Vector2(16, 240)
+shape = SubResource("VWall")
+
+[node name="WallRight" type="CollisionShape2D" parent="Walls"]
+position = Vector2(624, 240)
+shape = SubResource("VWall")
+
+[node name="HouseEntrance" type="Area2D" parent="."]
+position = Vector2(176, 112)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("2_house")
+
+[node name="Visual" type="Sprite2D" parent="HouseEntrance"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HouseEntrance"]
+shape = SubResource("Door")
+
+[node name="Bed" type="Area2D" parent="."]
+position = Vector2(464, 336)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("3_bed")
+
+[node name="Visual" type="Sprite2D" parent="Bed"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bed"]
+shape = SubResource("BedShape")
+
+[node name="DungeonDoor" type="Area2D" parent="."]
+position = Vector2(336, 112)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("4_dungeon")
+
+[node name="Visual" type="Sprite2D" parent="DungeonDoor"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DungeonDoor"]
+shape = SubResource("Door")
+
+[node name="NPC" type="Area2D" parent="."]
+position = Vector2(224, 240)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_npc")
+npc_name = "Mira"
+
+[node name="Shadow" type="Sprite2D" parent="NPC"]
+
+[node name="Visual" type="Sprite2D" parent="NPC"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NPC"]
+shape = SubResource("NPCShape")
+
+[node name="QuestBoard" type="Area2D" parent="."]
+position = Vector2(400, 240)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("6_board")
+
+[node name="Visual" type="Sprite2D" parent="QuestBoard"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="QuestBoard"]
+shape = SubResource("Door")
+
+[node name="GardenPlot" type="Area2D" parent="."]
+position = Vector2(224, 336)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("7_garden")
+
+[node name="Visual" type="Sprite2D" parent="GardenPlot"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GardenPlot"]
+shape = SubResource("Door")
+
+[node name="Player" parent="." instance=ExtResource("8_player")]
+position = Vector2(320, 240)
