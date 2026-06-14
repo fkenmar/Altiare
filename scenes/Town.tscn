@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/Town.gd" id="1_town"]
+
+[sub_resource type="RectangleShape2D" id="HWall"]
+size = Vector2(640, 32)
+
+[sub_resource type="RectangleShape2D" id="VWall"]
+size = Vector2(32, 480)
+
+[node name="Town" type="Node2D"]
+script = ExtResource("1_town")
+
+[node name="Ground" type="TileMapLayer" parent="."]
+
+[node name="Walls" type="StaticBody2D" parent="."]
+
+[node name="WallTop" type="CollisionShape2D" parent="Walls"]
+position = Vector2(320, 16)
+shape = SubResource("HWall")
+
+[node name="WallBottom" type="CollisionShape2D" parent="Walls"]
+position = Vector2(320, 464)
+shape = SubResource("HWall")
+
+[node name="WallLeft" type="CollisionShape2D" parent="Walls"]
+position = Vector2(16, 240)
+shape = SubResource("VWall")
+
+[node name="WallRight" type="CollisionShape2D" parent="Walls"]
+position = Vector2(624, 240)
+shape = SubResource("VWall")
