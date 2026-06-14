@@ -44,9 +44,7 @@ collision_layer = 0
 collision_mask = 2
 script = ExtResource("2_exit")
 
-[node name="Visual" type="Polygon2D" parent="DungeonExit"]
-color = Color(0.7, 0.7, 0.75, 1)
-polygon = PackedVector2Array(-20, -20, 20, -20, 20, 20, -20, 20)
+[node name="Visual" type="Sprite2D" parent="DungeonExit"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DungeonExit"]
 shape = SubResource("ExitShape")

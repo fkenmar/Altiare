@@ -279,3 +279,145 @@ static func _blob(color: Color, w: int, h: int, angry: bool) -> ImageTexture:
 		px(img, erx + 2, ey - 1, OUTLINE)
 	outline(img, OUTLINE)
 	return tex(img)
+
+# ============================================================================
+# Props (buildings, furniture, the garden, signage, dungeon features)
+# ============================================================================
+const WOOD := Color8(150, 108, 66)
+const WOOD_DK := Color8(112, 78, 48)
+const ROOF := Color8(184, 84, 70)
+const ROOF_DK := Color8(150, 62, 54)
+const CREAM := Color8(224, 206, 170)
+const CREAM_DK := Color8(196, 176, 142)
+const GLASS := Color8(150, 200, 224)
+const SOIL := Color8(122, 86, 58)
+const SOIL_DK := Color8(96, 66, 44)
+const STEM := Color8(96, 158, 70)
+const LEAF := Color8(122, 188, 92)
+const FRUIT := Color8(222, 96, 96)
+
+static func house() -> ImageTexture:
+	var w := 40
+	var h := 44
+	var img := new_image(w, h)
+	rect(img, 4, 18, 32, 24, CREAM)
+	rect(img, 31, 18, 5, 24, CREAM_DK)
+	for i in range(0, 16):  # roof trapezoid, wide at the eaves
+		var yy := 17 - i
+		var half := 18 - i
+		rect(img, 20 - half, yy, half * 2, 1, ROOF_DK if i < 2 else ROOF)
+	rect(img, 17, 30, 7, 12, WOOD)   # door
+	rect(img, 22, 30, 2, 12, WOOD_DK)
+	px(img, 18, 36, Color8(240, 220, 120))
+	rect(img, 8, 23, 7, 6, GLASS)    # window
+	rect(img, 11, 23, 1, 6, CREAM_DK)
+	rect(img, 8, 25, 7, 1, CREAM_DK)
+	outline(img, OUTLINE)
+	return tex(img)
+
+static func bed() -> ImageTexture:
+	var w := 40
+	var h := 30
+	var img := new_image(w, h)
+	rect(img, 2, 2, w - 4, h - 4, WOOD)
+	rect(img, 4, 4, w - 8, h - 8, Color8(236, 232, 224))
+	rect(img, 5, 5, 12, h - 10, Color8(248, 246, 240))           # pillow
+	rect(img, 18, 4, w - 22, h - 8, Color8(120, 150, 200))       # blanket
+	rect(img, 18, 4, w - 22, 2, Color8(150, 176, 216))
+	outline(img, OUTLINE)
+	return tex(img)
+
+static func cave() -> ImageTexture:
+	var w := 40
+	var h := 40
+	var img := new_image(w, h)
+	disc(img, 20, 24, 17, STONE_DK)
+	disc(img, 20, 22, 16, STONE)
+	disc(img, 10, 31, 4, STONE_DK)
+	disc(img, 31, 31, 5, STONE_DK)
+	disc(img, 14, 13, 2, STONE_LT)
+	disc(img, 20, 27, 9, Color8(16, 12, 22))   # opening
+	rect(img, 11, 27, 18, 11, Color8(16, 12, 22))
+	outline(img, OUTLINE)
+	return tex(img)
+
+static func sign() -> ImageTexture:
+	var w := 40
+	var h := 40
+	var img := new_image(w, h)
+	rect(img, 8, 18, 3, 20, WOOD_DK)
+	rect(img, 29, 18, 3, 20, WOOD_DK)
+	rect(img, 5, 6, 30, 18, WOOD)
+	rect(img, 5, 6, 30, 2, Color8(176, 130, 84))
+	rect(img, 9, 9, 22, 12, Color8(238, 232, 214))  # paper
+	for ly in [11, 14, 17]:
+		rect(img, 11, ly, 16, 1, Color8(90, 80, 70))
+	outline(img, OUTLINE)
+	return tex(img)
+
+static func tilled(stage: int) -> ImageTexture:
+	var w := 40
+	var h := 40
+	var img := new_image(w, h)
+	rect(img, 2, 2, w - 4, h - 4, SOIL)
+	for x in range(6, w - 4, 8):
+		rect(img, x, 4, 2, h - 8, SOIL_DK)
+	if stage == 1:
+		for sx in [12, 20, 28]:
+			px(img, sx, 26, STEM)
+			px(img, sx, 25, LEAF)
+	elif stage == 2:
+		for sx in [12, 20, 28]:
+			rect(img, sx, 18, 1, 8, STEM)
+			px(img, sx - 1, 19, LEAF)
+			px(img, sx + 1, 21, LEAF)
+	elif stage == 3:
+		for sx in [12, 20, 28]:
+			rect(img, sx, 15, 1, 11, STEM)
+			px(img, sx - 1, 17, LEAF)
+			px(img, sx + 1, 19, LEAF)
+			disc(img, sx, 14, 2, FRUIT)
+	outline(img, OUTLINE)
+	return tex(img)
+
+static func stairs() -> ImageTexture:
+	var w := 40
+	var h := 40
+	var img := new_image(w, h)
+	var steps := 5
+	for i in steps:
+		var yy := 6 + i * 6
+		var shade := STONE_LT.lerp(STONE_DK, float(i) / steps)
+		rect(img, 6, yy, w - 12, 6, shade)
+		rect(img, 6, yy, w - 12, 1, STONE_LT)
+	rect(img, 12, 2, 16, 4, Color8(240, 236, 200))  # exit glow
+	outline(img, OUTLINE)
+	return tex(img)
+
+# Decoration (non-interactive props that make the town feel lived-in)
+static func tree() -> ImageTexture:
+	var img := new_image(34, 44)
+	rect(img, 15, 30, 4, 12, WOOD)        # trunk
+	rect(img, 18, 30, 1, 12, WOOD_DK)
+	disc(img, 17, 18, 13, HEDGE_DK)       # canopy
+	disc(img, 17, 16, 12, HEDGE)
+	disc(img, 13, 12, 6, HEDGE_LT)        # highlight
+	outline(img, OUTLINE)
+	return tex(img)
+
+static func bush() -> ImageTexture:
+	var img := new_image(26, 20)
+	disc(img, 9, 12, 8, HEDGE_DK)
+	disc(img, 17, 12, 8, HEDGE_DK)
+	disc(img, 13, 10, 9, HEDGE)
+	disc(img, 10, 7, 3, HEDGE_LT)
+	outline(img, OUTLINE)
+	return tex(img)
+
+static func rock() -> ImageTexture:
+	var img := new_image(22, 16)
+	disc(img, 11, 11, 9, STONE_DK)
+	disc(img, 11, 10, 8, STONE)
+	disc(img, 8, 7, 3, STONE_LT)
+	outline(img, OUTLINE)
+	return tex(img)
