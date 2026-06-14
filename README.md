@@ -1,7 +1,8 @@
 # Altiare
 
-A cozy isekai slow-life RPG — Stardew's daily rhythm fused with an isekai
-progression fantasy. Built in **Godot 4.6** (GDScript), with all visuals generated
+Stardew Valley inspired isekai RPG game that's work in-progress
+
+Built in **Godot 4.6** (GDScript), with all visuals generated
 procedurally in code (no external art assets).
 
 ## Layout
