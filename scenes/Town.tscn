@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/Town.gd" id="1_town"]
 [ext_resource type="Script" path="res://scripts/HouseEntrance.gd" id="2_house"]
 [ext_resource type="Script" path="res://scripts/Bed.gd" id="3_bed"]
+[ext_resource type="Script" path="res://scripts/DungeonDoor.gd" id="4_dungeon"]
 
 [sub_resource type="RectangleShape2D" id="HWall"]
 size = Vector2(640, 32)
@@ -64,3 +65,16 @@ polygon = PackedVector2Array(-20, -14, 20, -14, 20, 14, -20, 14)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Bed"]
 shape = SubResource("BedShape")
+
+[node name="DungeonDoor" type="Area2D" parent="."]
+position = Vector2(336, 112)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("4_dungeon")
+
+[node name="Visual" type="Polygon2D" parent="DungeonDoor"]
+color = Color(0.25, 0.12, 0.35, 1)
+polygon = PackedVector2Array(-20, -20, 20, -20, 20, 20, -20, 20)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DungeonDoor"]
+shape = SubResource("Door")

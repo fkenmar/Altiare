@@ -11,7 +11,7 @@ signal player_fainted  ## hp hit 0 (combat) — the dungeon listens to send us h
 # --- Tuning (magic numbers live up here, per conventions) ---
 const STARTING_DAY: int = 1
 const MAX_ENERGY: int = 100
-const ENERGY_PER_HIT: int = 5
+const ENERGY_PER_HIT: int = 10  # a dungeon run of a few fights should drain a full bar
 const POINTS_PER_LEVEL: int = 3
 
 const BASE_MAX_HP: int = 20

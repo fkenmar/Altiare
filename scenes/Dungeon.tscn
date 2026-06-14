@@ -1,0 +1,79 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Dungeon.gd" id="1_dungeon"]
+[ext_resource type="Script" path="res://scripts/DungeonExit.gd" id="2_exit"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/Monster.tscn" id="4_monster"]
+
+[sub_resource type="RectangleShape2D" id="HWall"]
+size = Vector2(512, 32)
+
+[sub_resource type="RectangleShape2D" id="VWall"]
+size = Vector2(32, 384)
+
+[sub_resource type="RectangleShape2D" id="ExitShape"]
+size = Vector2(40, 40)
+
+[node name="Dungeon" type="Node2D"]
+script = ExtResource("1_dungeon")
+
+[node name="Ground" type="TileMapLayer" parent="."]
+
+[node name="Walls" type="StaticBody2D" parent="."]
+
+[node name="WallTop" type="CollisionShape2D" parent="Walls"]
+position = Vector2(256, 16)
+shape = SubResource("HWall")
+
+[node name="WallBottom" type="CollisionShape2D" parent="Walls"]
+position = Vector2(256, 368)
+shape = SubResource("HWall")
+
+[node name="WallLeft" type="CollisionShape2D" parent="Walls"]
+position = Vector2(16, 192)
+shape = SubResource("VWall")
+
+[node name="WallRight" type="CollisionShape2D" parent="Walls"]
+position = Vector2(496, 192)
+shape = SubResource("VWall")
+
+[node name="DungeonExit" type="Area2D" parent="."]
+position = Vector2(256, 64)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("2_exit")
+
+[node name="Visual" type="Polygon2D" parent="DungeonExit"]
+color = Color(0.7, 0.7, 0.75, 1)
+polygon = PackedVector2Array(-20, -20, 20, -20, 20, 20, -20, 20)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DungeonExit"]
+shape = SubResource("ExitShape")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(256, 320)
+
+[node name="Monster1" parent="." instance=ExtResource("4_monster")]
+position = Vector2(128, 150)
+
+[node name="Monster2" parent="." instance=ExtResource("4_monster")]
+position = Vector2(256, 170)
+monster_name = "Goblin"
+max_hp = 28
+attack = 4
+xp_reward = 20
+gold_reward = 6
+
+[node name="Monster3" parent="." instance=ExtResource("4_monster")]
+position = Vector2(384, 150)
+
+[node name="Monster4" parent="." instance=ExtResource("4_monster")]
+position = Vector2(180, 280)
+
+[node name="Monster5" parent="." instance=ExtResource("4_monster")]
+position = Vector2(340, 280)
+monster_name = "Brute"
+max_hp = 34
+attack = 5
+xp_reward = 28
+gold_reward = 8
