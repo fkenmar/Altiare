@@ -54,30 +54,31 @@ These are settled. Don't relitigate them unless I explicitly ask.
 
 ## Commands
 
-The Godot project root is `new-game-project/` (this folder), not the repo root.
-Godot 4.6 lives at `/opt/homebrew/bin/godot`. Run everything via `--path` so the
-working directory doesn't matter:
+This folder IS the Godot project root and the git repo root, so run Godot with
+`--path .` (run Claude from here too). Godot 4.6 lives at `/opt/homebrew/bin/godot`.
 
 ```bash
 # Play the game (opens a window; starts at the Intro main scene)
-godot --path new-game-project
+godot --path .
 
 # Open the editor
-godot -e --path new-game-project
+godot -e --path .
 
-# "Test" = boot a scene headless and confirm zero errors, then auto-quit.
-# This is the project's verification method — there is no unit-test framework.
-godot --headless --path new-game-project --quit-after 120 res://scenes/World.tscn
+# Run the unit tests — real exit code (0 pass / 1 fail). See "Quality workflow".
+godot --headless --path . --script res://tests/runner.gd
 
-# Boot any single scene the same way (the closest thing to "run one test"):
-godot --headless --path new-game-project --quit-after 120 res://scenes/Dungeon.tscn
-godot --headless --path new-game-project --quit-after 120 res://scenes/Intro.tscn
+# Smoke-boot a scene headless and auto-quit (catches load/parse errors)
+godot --headless --path . --quit-after 120 res://scenes/World.tscn
+godot --headless --path . --quit-after 120 res://scenes/Dungeon.tscn
+godot --headless --path . --quit-after 120 res://scenes/Intro.tscn
+
+# Full quality gate (unit tests + all scene boots) — also available as /qa
+bash .claude/hooks/qa.sh
 ```
 
-`--quit-after N` runs N frames then exits, so headless boots self-terminate. A clean
-run prints only the engine banner — any GDScript parse/runtime error shows up here.
-There is no separate build step (GDScript is interpreted); "building" only matters
-when exporting, which this for-fun project doesn't do.
+`--quit-after N` runs N frames then exits, so headless boots self-terminate. There's
+no separate build step (GDScript is interpreted); "building" only matters when
+exporting, which this for-fun project doesn't do.
 
 ---
 
@@ -123,6 +124,49 @@ to change.
   interaction uses the built-in `ui_accept` action.
 - The HUD is **instanced per gameplay scene** (in `World` and `Dungeon`),
   deliberately *not* an autoload.
+
+---
+
+## Quality workflow (quality > speed)
+
+This project favors getting things genuinely right over shipping fast. The tooling
+below enforces that — use it.
+
+**Tests.** Real unit tests for game *logic* live in `tests/` and run headless — a
+boot-check only proves the game doesn't crash, not that the numbers are right. Run:
+
+```bash
+godot --headless --path . --script res://tests/runner.gd
+```
+
+`runner.gd` (a `SceneTree` script) returns a real exit code (0 pass / 1 fail).
+`test_game_state.gd` covers the XP/level-up cascade, the day/sleep reset, energy/HP
+clamping + the faint signal, bounty escalation, and the garden state machine. **Add a
+test whenever you add or change logic:** drop a `tests/test_*.gd` with a `run(t)`
+method (assert via `t.eq` / `t.check` / `t.contains`) and list it in `runner.gd`'s
+`SUITES`. Tests instantiate scripts off-tree and `free()` what they make.
+
+**`/qa` — the gate.** `bash .claude/hooks/qa.sh` runs the unit tests *and* boots
+World/Dungeon/Intro, grepping their output for script errors (boots exit 0 even on
+error, so the grep is the real signal). Healthy = `QA: ALL CLEAR ✓`.
+
+**Stop-hook gate (optional).** If wired into `.claude/settings.json`,
+`.claude/hooks/qa-gate.sh` runs the gate automatically whenever game files change and
+blocks "done" until it's green (re-waking Claude with the exact failures). It
+self-skips when nothing changed, so conversational turns stay instant. Disable any
+time via `/hooks`.
+
+**Slash commands:** `/play` (run) · `/qa` (gate) · `/boot-check [scene]` (quick smoke
+boot) · `/playtest` (play + capture feedback to `PLAYTEST.md`) · `/new-interactable
+<Name>` (scaffold) · `/done` (definition-of-done).
+
+**Definition of done (`/done`):** QA clear → self `/code-review` → a test exists for
+any new logic → `CLAUDE.md` Current status + `PLAYTEST.md` updated → report what
+shipped and what was deferred.
+
+**The fun loop:** the game becomes *good* through `/playtest` → log to `PLAYTEST.md` →
+tune the smallest, highest-leverage knob → `/qa`. Systems are the content; tune one
+thing at a time.
 
 ---
 
