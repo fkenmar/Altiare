@@ -118,17 +118,34 @@ Tune the daily rhythm until ten in-game days feel good.
 
 ## Current status
 
-**M1 — Skeleton: implemented, boots clean, awaiting playtest.** GameState autoload
-(`day`/`energy`/`sleep()`), a WASD/arrow `CharacterBody2D` player, a 20×15
-`TileMapLayer` town with a `StaticBody2D` edge-wall border, a building-entrance
-`Area2D` (prints `entered house`), and a bed `Area2D` (stand on it, press Space/Enter
-to sleep → day +1, energy refilled). Verified: boots headless with zero errors; a
-runtime test plus an adversarial review confirmed the sleep math, area detection,
-collision wiring, wall blocking, and the interact→sleep path.
+**All milestones M1–M5 implemented, boots clean, awaiting playtest.** The full daily
+loop closes: isekai intro → town → dungeon → sleep → a stronger day.
 
-**Next:** playtest the loop. Once it feels right, start **M2 (dungeon + dirt-simple
-combat)** — not before.
+- **M1 Skeleton:** WASD/arrow `CharacterBody2D`, 20×15 `TileMapLayer` town with edge
+  walls, a building entrance, bed → sleep (day++, energy + HP refilled).
+- **M2 Dungeon + combat:** dungeon door → a floor of monsters; walk-into-monster
+  contact combat (damage = stat + die roll, energy per swing); XP/gold loot; faint → home.
+- **M3 Status Window:** HUD vitals; `[C]` opens the window to reallocate STR/VIT;
+  `[F]` inspects an enemy's exact stats; floating combat numbers over the world.
+- **M4 Cozy layer:** Mira (guide NPC) dialogue, a tavern bounty board, and the overnight
+  garden snowball (plant → ripens over nights → harvest for gold).
+- **M5 Cold-open + tuning:** the summon cutscene intro; Mira explains the world; dungeon
+  monsters scale to the player's level each dive, keeping day 1 → 10 engaging.
 
-> Note: uses `TileMapLayer` (not the legacy `TileMap` node, deprecated in Godot 4.6).
-> Movement keys are polled directly (no custom InputMap); interaction uses the
-> built-in `ui_accept` action.
+**Verified:** boots headless with zero errors on every scene; per-milestone runtime
+tests plus a full-game adversarial review passed (one same-frame double-faint edge case
+was found and fixed).
+
+**Controls:** WASD/arrows move · `Space`/`Enter` interact (sleep / talk / garden / board /
+descend) · `C` status window · `F` inspect.
+
+**Architecture notes:** `GameState.gd` is the sole autoload (the hub everything hangs
+off). The HUD is instanced per scene (deliberately not an autoload). Scripts reference
+each other via `preload`, not `class_name`, so headless runs don't depend on the editor's
+global class cache. Uses `TileMapLayer` (the legacy `TileMap` node is deprecated in 4.6).
+Movement is polled (no custom InputMap); interaction uses the built-in `ui_accept` action.
+Placeholder colored-square visuals throughout — drop in itch.io tilesets to prettify.
+
+**Next:** playtest day 1 → 10 and tune to taste. The knobs are consts at the top of
+`GameState.gd` (energy, XP curve, rewards, derived-stat coefficients) and `Dungeon.gd`
+(`SCALING_PER_LEVEL`).
