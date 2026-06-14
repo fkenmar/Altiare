@@ -118,6 +118,17 @@ Tune the daily rhythm until ten in-game days feel good.
 
 ## Current status
 
-**M1 not started.** Next action: scaffold the Godot project and build the M1
-skeleton — player movement, a tiny tilemap town, the building trigger, the bed,
-and `GameState.gd` with `day`/`energy` + a `sleep()` function.
+**M1 — Skeleton: implemented, boots clean, awaiting playtest.** GameState autoload
+(`day`/`energy`/`sleep()`), a WASD/arrow `CharacterBody2D` player, a 20×15
+`TileMapLayer` town with a `StaticBody2D` edge-wall border, a building-entrance
+`Area2D` (prints `entered house`), and a bed `Area2D` (stand on it, press Space/Enter
+to sleep → day +1, energy refilled). Verified: boots headless with zero errors; a
+runtime test plus an adversarial review confirmed the sleep math, area detection,
+collision wiring, wall blocking, and the interact→sleep path.
+
+**Next:** playtest the loop. Once it feels right, start **M2 (dungeon + dirt-simple
+combat)** — not before.
+
+> Note: uses `TileMapLayer` (not the legacy `TileMap` node, deprecated in Godot 4.6).
+> Movement keys are polled directly (no custom InputMap); interaction uses the
+> built-in `ui_accept` action.
