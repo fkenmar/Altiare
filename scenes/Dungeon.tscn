@@ -60,6 +60,7 @@ position = Vector2(128, 150)
 [node name="Monster2" parent="." instance=ExtResource("4_monster")]
 position = Vector2(256, 170)
 monster_name = "Goblin"
+kind = "goblin"
 max_hp = 28
 attack = 4
 xp_reward = 20
@@ -74,6 +75,7 @@ position = Vector2(180, 280)
 [node name="Monster5" parent="." instance=ExtResource("4_monster")]
 position = Vector2(340, 280)
 monster_name = "Brute"
+kind = "brute"
 max_hp = 34
 attack = 5
 xp_reward = 28

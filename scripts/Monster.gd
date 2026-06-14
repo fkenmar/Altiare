@@ -7,8 +7,10 @@ extends Area2D
 ## group so the HUD can inspect it; spawns floating damage numbers over the world.
 
 const FloatingNumber = preload("res://scenes/FloatingNumber.tscn")
+const PixelArt = preload("res://scripts/PixelArt.gd")
 
 @export var monster_name: String = "Slime"
+@export var kind: String = "slime"  # slime | goblin | brute (chooses the sprite)
 @export var max_hp: int = 22
 @export var attack: int = 3
 @export var xp_reward: int = 15
@@ -21,10 +23,18 @@ var hp: int = 0
 var _player: Node2D = null
 var _player_in_contact: bool = false
 var _timer: float = 0.0
+var _idle: float = 0.0
+
+@onready var _visual: Sprite2D = $Visual
+@onready var _shadow: Sprite2D = $Shadow
 
 func _ready() -> void:
 	hp = max_hp
 	add_to_group("monster")  # lets the HUD's inspect find us
+	_visual.texture = PixelArt.creature(kind)
+	_visual.position = Vector2(0, -2)
+	_shadow.texture = PixelArt.shadow(18, 7)
+	_shadow.position = Vector2(0, 8)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
@@ -39,6 +49,9 @@ func _on_body_exited(body: Node2D) -> void:
 		_player_in_contact = false
 
 func _process(delta: float) -> void:
+	_idle += delta * 3.0
+	if _visual:
+		_visual.position.y = -2.0 + sin(_idle) * 1.0  # gentle idle wobble
 	if not _player_in_contact or hp <= 0:
 		return
 	_timer += delta

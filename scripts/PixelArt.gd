@@ -189,3 +189,93 @@ static func _dungeon_wall() -> Image:
 		rect(img, x, 8, 1, 8, DWALL_DK)
 	rect(img, 0, 0, s, 1, DWALL_LT)  # faint top highlight
 	return img
+
+# ============================================================================
+# Characters & creatures (transparent sprites, outlined + shaded)
+# ============================================================================
+
+## A soft elliptical drop shadow (semi-transparent), placed under sprites at the feet.
+static func shadow(w: int, h: int) -> ImageTexture:
+	var img := new_image(w, h)
+	var cx := w / 2.0
+	var cy := h / 2.0
+	for y in h:
+		for x in w:
+			var dx := (x - cx) / (w / 2.0)
+			var dy := (y - cy) / (h / 2.0)
+			if dx * dx + dy * dy <= 1.0:
+				img.set_pixel(x, y, SHADOW)
+	return tex(img)
+
+## A 16x28 front-facing humanoid (player / villagers). Feet sit near the bottom.
+static func character(skin: Color, hair: Color, shirt: Color, pants: Color) -> ImageTexture:
+	var img := new_image(16, 28)
+	var skin_dk := skin.darkened(0.12)
+	var shirt_dk := shirt.darkened(0.18)
+	# legs + boots
+	rect(img, 5, 22, 2, 4, pants)
+	rect(img, 9, 22, 2, 4, pants)
+	rect(img, 4, 26, 3, 2, OUTLINE)
+	rect(img, 9, 26, 3, 2, OUTLINE)
+	# torso + arms + hands
+	rect(img, 4, 13, 8, 10, shirt)
+	rect(img, 10, 13, 2, 10, shirt_dk)  # shaded right side
+	rect(img, 3, 14, 2, 6, shirt)
+	rect(img, 11, 14, 2, 6, shirt_dk)
+	rect(img, 3, 19, 2, 2, skin)
+	rect(img, 11, 19, 2, 2, skin)
+	# head
+	rect(img, 5, 5, 6, 8, skin)
+	rect(img, 10, 5, 1, 8, skin_dk)
+	px(img, 6, 9, OUTLINE)  # eyes
+	px(img, 9, 9, OUTLINE)
+	# hair
+	rect(img, 5, 2, 6, 1, hair)
+	rect(img, 4, 3, 8, 3, hair)
+	rect(img, 4, 5, 1, 3, hair)
+	rect(img, 11, 5, 1, 3, hair)
+	outline(img, OUTLINE)
+	return tex(img)
+
+## A monster blob keyed by kind (slime/goblin/brute) — cohesive and cute, Stardew-ish.
+static func creature(kind: String) -> ImageTexture:
+	match kind:
+		"goblin":
+			return _blob(Color8(122, 174, 92), 22, 17, true)
+		"brute":
+			return _blob(Color8(176, 74, 74), 28, 22, true)
+		_:
+			return _blob(Color8(142, 102, 192), 18, 14, false)
+
+static func _blob(color: Color, w: int, h: int, angry: bool) -> ImageTexture:
+	var img := new_image(w, h)
+	var cx := w / 2.0
+	var cy := h / 2.0
+	var lt := color.lightened(0.28)
+	var dk := color.darkened(0.22)
+	for y in h:
+		for x in w:
+			var dx := (x - cx) / (w / 2.0 - 0.5)
+			var dy := (y - cy) / (h / 2.0 - 0.5)
+			if dx * dx + dy * dy <= 1.0:
+				var c := color
+				if y < h * 0.34:
+					c = lt
+				elif y > h * 0.78:
+					c = dk
+				img.set_pixel(x, y, c)
+	disc(img, cx - 2, cy - h * 0.18, 1.6, lt)  # highlight
+	var ey := int(cy + 1)
+	var elx := int(cx - 4)
+	var erx := int(cx + 2)
+	rect(img, elx, ey, 2, 2, Color.WHITE)
+	rect(img, erx, ey, 2, 2, Color.WHITE)
+	px(img, elx + 1, ey + 1, OUTLINE)
+	px(img, erx + 1, ey + 1, OUTLINE)
+	if angry:
+		px(img, elx - 1, ey - 1, OUTLINE)
+		px(img, elx, ey - 1, OUTLINE)
+		px(img, erx + 1, ey - 1, OUTLINE)
+		px(img, erx + 2, ey - 1, OUTLINE)
+	outline(img, OUTLINE)
+	return tex(img)
