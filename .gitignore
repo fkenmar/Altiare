@@ -1,0 +1,24 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Export build artifacts (built binaries / packaged output)
+/build/
+/builds/
+/export/
+/exports/
+*.pck
+*.exe
+*.dmg
+*.app
+*.x86_64
+*.apk
+*.aab
+*.wasm
+*.zip
+
+# Note: *.import files are INTENTIONALLY committed in Godot 4 — they are import
+# metadata, not cache. The real import cache lives under .godot/ (ignored above).
+
+# macOS
+.DS_Store
