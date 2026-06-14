@@ -14,6 +14,9 @@ const GRASS := Color8(112, 170, 84)
 const GRASS_DK := Color8(86, 142, 64)
 const GRASS_LT := Color8(146, 200, 104)
 
+const PATH := Color8(196, 170, 122)
+const PATH_DK := Color8(164, 138, 96)
+
 const HEDGE := Color8(74, 128, 64)
 const HEDGE_DK := Color8(50, 96, 48)
 const HEDGE_LT := Color8(104, 162, 84)
@@ -93,7 +96,7 @@ static func _rng(s: int) -> RandomNumberGenerator:
 static func ground_tiles(theme: String) -> Array:
 	if theme == "dungeon":
 		return [_stone(0), _stone(1), _stone(2), _rubble(), _dungeon_wall()]
-	return [_grass(0), _grass(1), _grass(2), _grass_flowers(), _hedge()]
+	return [_grass(0), _grass(1), _grass(2), _grass_flowers(), _hedge(), _path(0)]
 
 static func _base_noise(s: int, seed_id: int, base: Color, dk: Color, lt: Color, density: int) -> Image:
 	var img := new_image(s, s)
@@ -107,15 +110,17 @@ static func _base_noise(s: int, seed_id: int, base: Color, dk: Color, lt: Color,
 
 static func _grass(variant: int) -> Image:
 	var s := 32
-	var img := _base_noise(s, 1100 + variant, GRASS, GRASS_DK, GRASS_LT, 34)
-	# short vertical blades
-	var rng := _rng(1200 + variant)
-	for i in 14:
-		var x := rng.randi_range(1, s - 2)
-		var y := rng.randi_range(2, s - 3)
-		var c := GRASS_DK if (i % 2 == 0) else GRASS_LT
+	var img := new_image(s, s)
+	rect(img, 0, 0, s, s, GRASS)
+	var rng := _rng(1100 + variant)
+	for i in 7:  # subtle grass-blade tufts (calm, not confetti)
+		var x := rng.randi_range(2, s - 3)
+		var y := rng.randi_range(4, s - 3)
+		var c := GRASS_DK if i % 2 == 0 else GRASS_LT
 		px(img, x, y, c)
-		px(img, x, y + 1, c)
+		px(img, x, y - 1, c)
+		px(img, x - 1, y, c)
+		px(img, x + 1, y, c)
 	return img
 
 static func _grass_flowers() -> Image:
@@ -123,15 +128,29 @@ static func _grass_flowers() -> Image:
 	var rng := _rng(1300)
 	var palette := [FLOWER_RED, FLOWER_YEL, FLOWER_WHT]
 	for i in 3:
-		var cx := rng.randi_range(5, 26)
-		var cy := rng.randi_range(5, 26)
+		var cx := rng.randi_range(7, 24)
+		var cy := rng.randi_range(7, 24)
 		var col: Color = palette[i % palette.size()]
-		# 4-petal flower with a centre
-		px(img, cx, cy - 1, col)
-		px(img, cx, cy + 1, col)
-		px(img, cx - 1, cy, col)
-		px(img, cx + 1, cy, col)
+		px(img, cx, cy - 2, col)  # 5px flower: 4 petals + centre
+		px(img, cx, cy + 2, col)
+		px(img, cx - 2, cy, col)
+		px(img, cx + 2, cy, col)
+		px(img, cx - 1, cy - 1, col)
+		px(img, cx + 1, cy - 1, col)
+		px(img, cx - 1, cy + 1, col)
+		px(img, cx + 1, cy + 1, col)
 		px(img, cx, cy, FLOWER_CTR)
+	return img
+
+static func _path(variant: int) -> Image:
+	var s := 32
+	var img := new_image(s, s)
+	rect(img, 0, 0, s, s, PATH)
+	var rng := _rng(1500 + variant)
+	for i in 26:
+		px(img, rng.randi_range(0, s - 1), rng.randi_range(0, s - 1), PATH_DK if i % 2 == 0 else PATH.lightened(0.10))
+	for i in 4:
+		disc(img, rng.randi_range(3, s - 4), rng.randi_range(3, s - 4), 1.5, PATH_DK)
 	return img
 
 static func _hedge() -> Image:

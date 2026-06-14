@@ -12,6 +12,7 @@ const PixelArt = preload("res://scripts/PixelArt.gd")
 const TILE_SIZE: int = 32
 const WIDTH: int = 20   # tiles wide
 const HEIGHT: int = 15  # tiles tall
+const PATH_TILE := Vector2i(5, 0)  # atlas index of the dirt-path tile
 
 # Decoration placed clear of the interactables / player spawn: [kind, x, y].
 const DECOR := [
@@ -24,6 +25,7 @@ const DECOR := [
 
 func _ready() -> void:
 	TileFloorBuilder.build(_ground, WIDTH, HEIGHT, TILE_SIZE, "town")
+	_paint_paths()
 	_scatter_decor()
 	_clamp_camera()
 
@@ -43,6 +45,21 @@ func _scatter_decor() -> void:
 		s.texture = cache[kind]
 		s.position = Vector2(item[1], item[2])
 		add_child(s)  # direct child of the y-sorted Town, so it sorts against the player
+
+## Paint a dirt path: a central road (row 7) with spurs to the cottage, dungeon, garden,
+## and bed, so the town reads as a designed village instead of props scattered on a field.
+func _paint_paths() -> void:
+	var cells: Array[Vector2i] = []
+	for x in range(3, 17):
+		cells.append(Vector2i(x, 7))
+	for y in range(4, 7):
+		cells.append(Vector2i(5, y))
+		cells.append(Vector2i(10, y))
+	for y in range(8, 11):
+		cells.append(Vector2i(7, y))
+		cells.append(Vector2i(14, y))
+	for c in cells:
+		_ground.set_cell(c, 0, PATH_TILE)
 
 ## Clamp the player's camera to the map bounds so the cozy 2x zoom never shows the void.
 func _clamp_camera() -> void:
